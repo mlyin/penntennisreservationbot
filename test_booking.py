@@ -123,45 +123,24 @@ class TennisBookingBot:
             print(f"Error adding participant: {str(e)}")
             return False
 
-    def search_courts(self, date_str, time_str, court_type="indoor"):
+    def search_courts(self, date_str, court_type="indoor"):
         try:
-            print(f"\nSearching for {court_type} courts on {date_str} at {time_str}")
+            print(f"\nSearching for {court_type} courts on {date_str}")
             
-            # Wait for and set date
+            # # Wait for and set date
             date_input = WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((By.ID, "date"))
             )
-            self.driver.execute_script("arguments[0].scrollIntoView(true);", date_input)
             date_input.clear()
             date_input.send_keys(date_str)
-            date_input.send_keys(Keys.TAB)  # Trigger date validation
             
-            # Wait for and set location
-            location_select = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.ID, "location"))
+            search_button = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.ID, "reserve-court-search"))
             )
-            Select(location_select).select_by_value("1" if court_type.lower() == "indoor" else "32")
+            search_button.click()
+            print("Clicked search button")
             
-            # Wait for and set time
-            time_select = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.ID, "timeFrom"))
-            )
-            select = Select(time_select)
-            for option in select.options:
-                if time_str in option.text:
-                    select.select_by_visible_text(option.text)
-                    break
-            
-            # Click search button if present
-            try:
-                search_button = WebDriverWait(self.driver, 5).until(
-                    EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']"))
-                )
-                search_button.click()
-            except:
-                print("No search button found, continuing...")
-            
-            # Wait for results
+            # Wait a moment for results to load
             time.sleep(2)
             return True
             
@@ -188,8 +167,7 @@ def test_booking():
         
         if bot.add_participant("Alan Du"):
             bot.search_courts(
-                date_str="05/01/2024",
-                time_str="10:00 AM",
+                date_str="12/14/2024",
                 court_type="indoor"
             )
         else:
